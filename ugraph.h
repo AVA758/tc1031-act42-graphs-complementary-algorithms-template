@@ -239,8 +239,7 @@ std::string UListGraph<Vertex>::toString() const {
 /***********************************************************/
 
 template <class Vertex>
-std::set<Vertex> dfs(const Vertex& start,
-	const UnweightedGraph<Vertex>* graph) {
+std::set<Vertex> dfs(const Vertex& start, const UnweightedGraph<Vertex>* graph) {
 
 	std::set<Vertex> visited;
 	std::stack<Vertex> pending;
