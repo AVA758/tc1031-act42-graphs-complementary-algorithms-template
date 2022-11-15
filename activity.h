@@ -69,25 +69,57 @@ bool isBipartite(const UnweightedGraph<Vertex>* graph) {
     color[i] = -1;
   }
 
-  isBipartite = TRUE;
+  isBipartite = true;
 
   Vertex v = vert.begin();
   
- color[v] = 1;
+  color[v] = 1;
 
- q.enqueue(v);
- 
+  q.enqueue(v);
+
+  Vertex u; 
+
  while(!q.empty()){
-  
+  u = q.dequeue();
+  for(itr = connected.begin(); itr != connected.end(); itr++){
+    if (color[v] == -1){
+      color[v] = 1 - color[u];
+      q.enqueue(v);
+    }
+    else{
+      if (color[v] == color[u]){
+        isBipartite = false;
+      }
+    }
+  }
  }
 
   return isBipartite;
 }
 
 template <class Vertex>
-bool isCyclic(Vertex v, const UnweightedGraph<Vertex>* graph,
+bool isCyclic(Vertex u, const UnweightedGraph<Vertex>* graph,
   std::set<Vertex> &reached, Vertex parent) {
   typename std::set<Vertex>::iterator itr;
+  typename std::set<Vertex> visited;
+  Vertex v;
+  reached.insert(u);
+  visited.insert(u);
+  std::set<Vertex> connected = graph->getConnectionFrom(u);
+
+  for (itr = connected.begin(); itr != connected.end(); itr++) {
+    v =  connected(itr); 
+    if (visited.find(v) == visited.end()) {
+      if (isCyclic(v, graph, reached, parent)){
+        return true;
+      }
+    }
+    else{
+      if (v <> parent){
+        return true;
+      }
+    } 
+  }
 
   return false;
 }
@@ -95,8 +127,20 @@ bool isCyclic(Vertex v, const UnweightedGraph<Vertex>* graph,
 template <class Vertex>
 bool isTree(const UnweightedGraph<Vertex>* graph) {
   typename std::vector<Vertex>::iterator itr;
+  typename std::set<Vertex> reached;
+  typename std::set<Vertex> vertex;
+  vertex = graph -> getVertexes()
+  Vertex v = vertex.begin();
 
-  return false;
+  if (isCyclic(v, graph, reached, NULL)){
+    return false;
+  }
+  for (int i = 0; graph -> getVertexes() > i; i++ ) {
+    if (reached.find(v) != reached.end()){
+      return false;
+    }
+  }
+  return true;
 }
 
 
