@@ -11,30 +11,31 @@
 #include <queue>
 #include <stack>
 #include <set>
+#include <vector>
 
 
 template <class Vertex>
 
 //==============================================================
-// Uses nodes u and v to find adacencies, and in that adjacence, if the v node hadn't been explored, the function will call itself
-// recursively, and if it is visited, it will be added to the TS set of type vertex.
+// Uses nodes u and v to find adacencies, and in that adjacence,
+// if the v node hadn't been explored, the function will call 
+// itself recursively, and if it is visited, it will be added to
+// the TS set of type vertex.
 //
-// COMPLEXITY: O(n)
+// COMPLEXITY: O(log(n))
 //==============================================================
 void dfs2(Vertex u, const UnweightedGraph<Vertex>* graph, std::set<Vertex> &reached, std::stack<Vertex> &TS) {
-
-  std::set<Vertex> visited; 
-  Vertex v;
-  typename std::set<Vertex>::iterator itr;
   
-  visited.insert(u); 
+  typename std::set<Vertex>::iterator itr; 
   std::set<Vertex> connected = graph->getConnectionFrom(u);
+  reached.insert(u);
+
   for (itr = connected.begin(); itr != connected.end(); itr++) {
-    if (visited.find(u) == visited.end()) {
-      v =  connected(itr); 
-      dfs2(v, graph, reached, TS); 
+    if (reached.find(*itr) == reached.end()) {
+      dfs2(*itr, graph, reached, TS); 
       } 
   }
+
   TS.push(u);
 }
 
@@ -52,20 +53,28 @@ std::string topologicalSort(const UnweightedGraph<Vertex>* graph) {
   
   typename std::vector<Vertex>::iterator itr;
   std::stringstream aux;
-  std::set<Vertex> Reached;
+  std::set<Vertex> reached;
   std::stack<Vertex> TS;
 
-  for (int i=0;graph->getVertexes() > i; i++ ){
-    if (visited.find(u) == visited.end()) { 
-      dfs2(u, graph, reached, TS); 
+  bool* visited = new bool[graph->getVertexes().size()];
+
+  std::vector<Vertex> vertex = graph->getVertexes();
+
+  for (itr = vertex.begin(); itr != vertex.end(); itr++ ){
+    if (reached.find(*itr) == reached.end()) { 
+      dfs2(*itr, graph, reached, TS); 
       } 
 
   }
 
+  aux << "[";
   while (!TS.empty()){
-    aux.insert(TS.top());
+    aux << TS.top() << " ";
     TS.pop();
   }
+
+  aux.seekp(-1, std::ios_base::end);
+  aux << "]";
 
   return aux.str();
 
@@ -75,7 +84,8 @@ std::string topologicalSort(const UnweightedGraph<Vertex>* graph) {
 //==============================================================
 // Returns a boolean result. 
 // Compares positions u and v in an array.
-// Returns false if, after enqueuing vertexes, the vertex index values in the arrays are equal.
+// Returns false if, after enqueuing vertexes, the vertex
+// index values in the arrays are equal.
 // Returns true if the v index of the array is -1 or if otherwise. 
 //
 // COMPLEXITY: O(n)
@@ -85,70 +95,83 @@ bool isBipartite(const UnweightedGraph<Vertex>* graph) {
 
   typename std::vector<Vertex>::iterator itr;
   typename std::set<Vertex>::iterator j;
-  typename std::queue<Vertex> q;
-  typename std::array<Vertex> color;
-  bool isBipartite;
-  std::set<Vertex> vert = graph->getVertexes();
-
-  for (int i = vert.begin(); i != vert.end(); i++){
-    color[i] = -1;
-  }
-
-  isBipartite = true;
-
-  Vertex v = vert.begin();
   
-  color[v] = 1;
+  std::vector<Vertex> vert = graph->getVertexes();
+  std::set<Vertex> visited;
+  std::set<Vertex> g1;
+  std::set<Vertex> g2;
+  std::stack<Vertex> pend;
 
-  q.enqueue(v);
+  for (itr = vert.begin(); itr != vert.end(); itr++){
+    if (visited.find(*itr) == visited.end()){
+      pend.push(*itr);
+      g1.insert(*itr);
 
-  Vertex u; 
+      while (!pend.empty()){
+        Vertex v = pend.top();
+        pend.pop();
 
- while(!q.empty()){
-  u = q.dequeue();
-  for(itr = connected.begin(); itr != connected.end(); itr++){
-    if (color[v] == -1){
-      color[v] = 1 - color[u];
-      q.enqueue(v);
-    }
-    else{
-      if (color[v] == color[u]){
-        isBipartite = false;
+        if (visited.find(v) == visited.end()){
+          visited.insert(v);
+          std::set<Vertex> connect = graph->getConnectionFrom(v);
+
+          for (j = connect.begin(); j != connect.end(); j++){
+            if (visited.find(*j) == visited.end()){
+              pend.push(*j);
+              
+              if (g1.find(v) != g1.end()){
+                g2.insert(*j);
+              }
+              else{
+                g1.insert(*j);
+              }
+            }
+            else{
+              if (g1.find(v) != g1.end()){
+                if (g1.find(*j) != g1.end()){
+                  return false;
+                }
+              }
+              else {
+                if (g2.find(*j) != g2.end()) {
+                  return false;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
- }
 
-  return isBipartite;
+  return true;
 }
 
 
 //==============================================================
 // Returns boolean value. 
-// Searches for adjacencies. When found, if not visited, return true if the function has been called recursively.
-// Returns true if the vertex of the adjacence is out of the parent class. Returns false if otherwise.
+// Searches for adjacencies. When found, if not visited, return 
+// true if the function has been called recursively.
+// Returns true if the vertex of the adjacence is out 
+// of the parent class. Returns false if otherwise.
 //
-// COMPLEXITY: O(n)
+// COMPLEXITY: O(log(n))
 //==============================================================
 template <class Vertex>
 bool isCyclic(Vertex u, const UnweightedGraph<Vertex>* graph,
   std::set<Vertex> &reached, Vertex parent) {
   typename std::set<Vertex>::iterator itr;
-  typename std::set<Vertex> visited;
-  Vertex v;
+
+  if (reached.find(u) != reached.end()) {
+    return true;
+  }
+
   reached.insert(u);
-  visited.insert(u);
   std::set<Vertex> connected = graph->getConnectionFrom(u);
 
   for (itr = connected.begin(); itr != connected.end(); itr++) {
-    v =  connected(itr); 
-    if (visited.find(v) == visited.end()) {
-      if (isCyclic(v, graph, reached, parent)){
-        return true;
-      }
-    }
-    else{
-      if (v <> parent){
+    if (*itr != parent) {
+      if (isCyclic(*itr, graph, reached, u)){
         return true;
       }
     } 
@@ -169,19 +192,15 @@ bool isCyclic(Vertex u, const UnweightedGraph<Vertex>* graph,
 template <class Vertex>
 bool isTree(const UnweightedGraph<Vertex>* graph) {
   typename std::vector<Vertex>::iterator itr;
-  typename std::set<Vertex> reached;
-  typename std::set<Vertex> vertex;
-  vertex = graph -> getVertexes()
-  Vertex v = vertex.begin();
+  std::vector<Vertex> vertex = graph->getVertexes();
 
-  if (isCyclic(v, graph, reached, NULL)){
-    return false;
-  }
-  for (int i = 0; graph -> getVertexes() > i; i++ ) {
-    if (reached.find(v) != reached.end()){
+  for (itr = vertex.begin(); itr != vertex.end(); itr++) {
+    std::set<Vertex> reached;
+    if (isCyclic(*itr, graph, reached, *itr)) {
       return false;
     }
   }
+
   return true;
 }
 
