@@ -3,8 +3,8 @@
 
 // =========================================================
 // File: actitivy.h
-// Author:
-// Date:
+// Author: Ricardo Navarro & Alain Vicencio
+// Date: 15/11/2022
 // =========================================================
 
 #include "ugraph.h"
@@ -14,9 +14,16 @@
 
 
 template <class Vertex>
+
+//==============================================================
+// Uses nodes u and v to find adacencies, and in that adjacence, if the v node hadn't been explored, the function will call itself
+// recursively, and if it is visited, it will be added to the TS set of type vertex.
+//
+// COMPLEXITY: O(n)
+//==============================================================
 void dfs2(Vertex u, const UnweightedGraph<Vertex>* graph, std::set<Vertex> &reached, std::stack<Vertex> &TS) {
 
-  std::set<Vertex> visited;
+  std::set<Vertex> visited; 
   Vertex v;
   typename std::set<Vertex>::iterator itr;
   
@@ -31,6 +38,15 @@ void dfs2(Vertex u, const UnweightedGraph<Vertex>* graph, std::set<Vertex> &reac
   TS.push(u);
 }
 
+
+//==============================================================
+// Runs through each vertex node in the grah.
+// If the vertex has not been visited, dfs2 is called.
+// If it is visited, it adds it to the TS set and prints it. 
+// Returns stringstream. 
+//
+// COMPLEXITY: O(n)
+//==============================================================
 template <class Vertex>
 std::string topologicalSort(const UnweightedGraph<Vertex>* graph) {
   
@@ -55,6 +71,15 @@ std::string topologicalSort(const UnweightedGraph<Vertex>* graph) {
 
 }
 
+
+//==============================================================
+// Returns a boolean result. 
+// Compares positions u and v in an array.
+// Returns false if, after enqueuing vertexes, the vertex index values in the arrays are equal.
+// Returns true if the v index of the array is -1 or if otherwise. 
+//
+// COMPLEXITY: O(n)
+//==============================================================
 template <class Vertex>
 bool isBipartite(const UnweightedGraph<Vertex>* graph) {
 
@@ -97,6 +122,14 @@ bool isBipartite(const UnweightedGraph<Vertex>* graph) {
   return isBipartite;
 }
 
+
+//==============================================================
+// Returns boolean value. 
+// Searches for adjacencies. When found, if not visited, return true if the function has been called recursively.
+// Returns true if the vertex of the adjacence is out of the parent class. Returns false if otherwise.
+//
+// COMPLEXITY: O(n)
+//==============================================================
 template <class Vertex>
 bool isCyclic(Vertex u, const UnweightedGraph<Vertex>* graph,
   std::set<Vertex> &reached, Vertex parent) {
@@ -124,6 +157,15 @@ bool isCyclic(Vertex u, const UnweightedGraph<Vertex>* graph,
   return false;
 }
 
+
+//==============================================================
+// Returns boolean value.
+// Returns false if the isCyclic() function is called.
+// Returns false if there are no vertexes marked as 'Reached'
+// Returns true otherwise.
+//
+// COMPLEXITY: O(n)
+//==============================================================
 template <class Vertex>
 bool isTree(const UnweightedGraph<Vertex>* graph) {
   typename std::vector<Vertex>::iterator itr;
